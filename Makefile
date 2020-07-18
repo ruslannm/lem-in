@@ -3,53 +3,86 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: rgero <rgero@student.42.fr>                +#+  +:+       +#+         #
+#    By: rgero <marvin@42.fr>                       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2019/09/13 15:46:56 by rgero             #+#    #+#              #
-#    Updated: 2020/03/05 18:01:15 by rgero            ###   ########.fr        #
+#    Created: 2020/05/01 00:00:00 by lnickole          #+#    #+#              #
+#    Updated: 2020/07/18 18:16:46 by rgero            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-NAME = rgero.filler
+NAME_LEM-IN			= lem-in
+DIR_SRC				= sources
+DIR_OBJ 			= objects
+DIR_INC 			= includes
 
-CC = gcc
-CFLAGS = -c -Wall -Wextra -Werror
+DIR_LIBFT 			= libft
+NAME_LIBFT			= $(DIR_LIBFT)/libft.a
+DIR_INC_LIBFT		= $(DIR_LIBFT)/includes
 
-SRC_PATH = src
-SRC_NAME = main.c ft_init.c ft_auxiliary.c ft_read.c ft_heat.c\
-			ft_ini_corner.c ft_get_corner.c ft_set_corner.c\
-			ft_put_piece.c ft_move_piece.c ft_control.c
+DIR_FT_PRINTF 		= ft_printf
+NAME_FT_PRINTF		= $(DIR_FT_PRINTF)/libftprintf.a
+DIR_INC_PRINTF		= $(DIR_FT_PRINTF)/includes
 
-SRC = $(addprefix $(SRC_PATH)/, $(SRC_NAME))
+SRC_LIST_LEM-IN 	= add_rooms.c\
+					bfs.c\
+					count_ants.c\
+					create_paths.c\
+					create_tab.c\
+					distribute_ants.c\
+					exit_func.c\
+					free_array.c\
+					ft_arrintnew.c\
+					hash.c\
+					join_str.c\
+					lem_in.c\
+					links.c\
+					print_paths.c\
+					print_result.c\
+					print_usage.c\
+					queue.c \
+					room_index.c\
+					rooms.c\
+					save_path.c\
+					solution.c\
+					utils.c
 
-OBJ_PATH = obj
-OBJ_NAME = $(SRC_NAME:.c=.o)
-OBJ = $(addprefix $(OBJ_PATH)/, $(OBJ_NAME)) 
+HEADERS				= lem_in.h
 
-INCLUDES_PATH = includes libft/includes libft/ft_printf/includes
-INCLUDES = $(addprefix -I, $(INCLUDES_PATH))
+SRC_LEM-IN			= $(addprefix $(DIR_SRC)/, $(SRC_LIST_LEM-IN))
+OBJ_LEM-IN			= $(addprefix $(DIR_OBJ)/, $(SRC_LIST_LEM-IN:.c=.o))
+INC					= $(addprefix $(DIR_INC)/, $(HEADERS))
 
-LIB_PATH = libft
-LIB_NAME = libft.a
+FLAGS			= -Wall -Wextra -Werror -g
+GCC_LIBFT 		= -L $(DIR_LIBFT) -lft
+GCC_FT_PRINTF	= -L $(DIR_FT_PRINTF) -lftprintf
 
-.PHONY: all clean fclean re libft
+all: $(NAME_LEM-IN)
 
-all: $(NAME)
+$(NAME_LEM-IN): $(DIR_OBJ) $(OBJ_LEM-IN) $(NAME_LIBFT) $(NAME_FT_PRINTF) $(INC)
+	@gcc $(FLAGS) $(OBJ_LEM-IN) -o $(NAME_LEM-IN) $(GCC_LIBFT) $(GCC_FT_PRINTF)
 
-$(NAME): $(OBJ)
-	make -C $(LIB_PATH)
-	$(CC) $(OBJ) -L $(LIB_PATH)/ -lft -o $@
+$(DIR_OBJ):
+	@mkdir -p $(DIR_OBJ)
 
-$(OBJ_PATH)/%.o: $(SRC_PATH)/%.c includes/filler.h
-	@/bin/mkdir -p $(OBJ_PATH)
-	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@
+$(NAME_LIBFT):
+	@make -C $(DIR_LIBFT)/
+
+$(NAME_FT_PRINTF):
+	@make -C $(DIR_FT_PRINTF)/
+
+$(DIR_OBJ)/%.o: $(DIR_SRC)/%.c $(INC)
+	@gcc -c -I $(DIR_INC) -I $(DIR_INC_LIBFT) -I $(DIR_INC_PRINTF) $(FLAGS) $< -o $@
 
 clean:
-	/bin/rm -rf $(OBJ_PATH)
-	make -C $(LIB_PATH) clean
+	@/bin/rm -rf $(DIR_OBJ)
+	@make clean -C $(DIR_LIBFT)/
+	@make clean -C $(DIR_FT_PRINTF)/
 
 fclean: clean
-	/bin/rm -f $(NAME)
-	make -C $(LIB_PATH) fclean
-	
+	@/bin/rm -f $(NAME_LEM-IN)
+	@make fclean -C $(DIR_LIBFT)/
+	@make fclean -C $(DIR_FT_PRINTF)/
+
 re: fclean all
+
+.PHONY: all clean fclean re
